@@ -1,0 +1,14 @@
+// Microsoft Defender – Eventos do tipo AntivirusDetection com detalhes em AdditionalFields
+// https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-deviceevents-table
+// Consulta para identificar detecções de software potencialmente indesejado (PUA) nos últimos eventos
+
+DeviceEvents
+| where ActionType == "AntivirusDetection"
+| extend ThreatDetails = parse_json(AdditionalFields)
+| extend ThreatName = tostring(ThreatDetails.ThreatName),
+         WasExecutingWhileDetected = tostring(ThreatDetails.WasExecutingWhileDetected),
+         WasRemediated = tostring(ThreatDetails.WasRemediated)
+| where ThreatName startswith_cs "PUA:"
+| project Timestamp, DeviceName, FolderPath, FileName, SHA256,
+          ThreatName, WasExecutingWhileDetected, WasRemediated
+| order by Timestamp desc
