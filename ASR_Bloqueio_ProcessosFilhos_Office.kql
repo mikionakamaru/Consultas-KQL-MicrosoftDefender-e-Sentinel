@@ -1,0 +1,10 @@
+// Referências:
+// https://learn.microsoft.com/pt-br/defender-endpoint/attack-surface-reduction-rules-reference
+// Detecções de eventos: AsrOfficeChildProcessBlocked
+// Explicação: Esta regra impede que aplicações do Office (Word, Excel, PowerPoint, OneNote, Access) criem processos subordinados,
+// bloqueando tentativas de execução potencialmente maliciosa por meio de macros ou exploits.
+
+DeviceEvents
+| where Timestamp > ago(1d) // Últimas 24h
+| where ActionType startswith "AsrOfficeChildProcessBlocked" // Eventos de bloqueio de criação de processo por Office
+| where DeviceName contains "" // Coloque parte do nome se quiser filtrar (ex: "MICROXX"), deixe vazio para todos
