@@ -1,0 +1,6 @@
+// Microsoft Defender XDR – Tabela DeviceTvmSoftwareInventory para inventário de softwares
+// https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-devicetvmsoftwareinventory-table
+// Consulta para localizar dispositivos que tenham software com nome contendo "deepseek"
+
+DeviceTvmSoftwareInventory
+| where SoftwareName contains "deepseek"  // Filtra software cujo nome contenha "deepseek"
