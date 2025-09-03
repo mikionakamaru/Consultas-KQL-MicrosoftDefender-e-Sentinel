@@ -1,0 +1,8 @@
+// Microsoft Defender - Eventos DeviceEvents relacionados ao SmartScreen URL
+// SmartScreen protege contra sites maliciosos e phishing bloqueando URLs suspeitos
+// https://learn.microsoft.com/pt-br/defender-endpoint/defender-endpoint-demonstration-smartscreen-url-reputation
+
+DeviceEvents
+| where Timestamp >= ago(30d)              // Eventos dos últimos 30 dias
+| where ActionType contains "SmartScreenUrl" // Ações relacionadas ao bloqueio ou alerta do SmartScreen para URLs
+| where RemoteUrl contains "amazon"      // Filtra URLs que contenham o termo "amazon" (ajuste conforme necessidade)
