@@ -1,0 +1,10 @@
+// IdentityLogonEvents – Microsoft Defender XDR & Sentinel:
+// https://learn.microsoft.com/pt-br/defender-xdr/advanced-hunting-identitylogonevents-table
+// Esta tabela registra eventos de autenticação (Logon) interativa, podendo ser analisada para buscas por acessos e baselines de contas.
+
+IdentityLogonEvents
+| where DeviceName contains "" // Coloque parte do nome se quiser filtrar (ex: "MICROXX"), deixe vazio para todos
+| where ActionType contains "Logon" // Considera eventos de logon (interativo, sucesso, falha etc)
+| where LogonType == "Interactive" // Garante apenas sessões do tipo interativo
+| project Timestamp, ActionType, LogonType, AccountName, AccountDisplayName, AccountUpn // Exibe campos relevantes para análise de logon de contas
+| order by Timestamp // Ordena cronologicamente
