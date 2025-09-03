@@ -4,25 +4,21 @@
 // Avaliação combinada do modo de operação, versões de assinatura e data de atualização do antivírus
 
 
-let DeviceNameFilter = "";  // Coloque parte do nome se quiser filtrar (ex: "MICROXX"), deixe vazio para todos
 let avmodetable = DeviceTvmSecureConfigurationAssessment
 | where ConfigurationId == "scid-2010" and isnotnull(Context)
-| where (DeviceName contains DeviceNameFilter or isempty(DeviceNameFilter))
-| extend avdata = parsejson(Context)
-| extend AVMode = iif(tostring(avdata[0][0]) == '0', 'Active',
-                iif(tostring(avdata[0][0]) == '1', 'Passive',
-                iif(tostring(avdata[0][0]) == '4', 'EDR Blocked', 'Unknown')))
-| where Timestamp > ago(30d)
-| where OSPlatform in ("Windows10", "Windows11")
-| where AVMode != "Unknown"
+| where DeviceName contains "" // Coloque parte do nome se quiser filtrar (ex: "MICROXX"), deixe vazio para todos
+| extend avdata=parsejson(Context)
+| extend AVMode = iif(tostring(avdata[0][0]) == '0', 'Active' , iif(tostring(avdata[0][0]) == '1', 'Passive' ,iif(tostring(avdata[0][0]) == '4', 'EDR Blocked' ,'Unknown')))
+| where Timestamp > ago(30d) // Considera somente eventos dos últimos 30 dias
+| where OSPlatform == "Windows10" or OSPlatform == "Windows11" // Mantém apenas dispositivos Windows 10 e 11
+| where AVMode != "Unknown" // Descarta modos de antivírus desconhecidos
 | project DeviceId, AVMode;
-
 DeviceTvmSecureConfigurationAssessment
 | where ConfigurationId == "scid-2011" and isnotnull(Context)
-| extend avdata = parsejson(Context)
+| extend avdata=parsejson(Context)
 | extend AVSigVersion = tostring(avdata[0][0])
 | extend AVEngineVersion = tostring(avdata[0][1])
 | extend AVSigLastUpdateTime = tostring(avdata[0][2])
 | project DeviceId, DeviceName, OSPlatform, AVSigVersion, AVEngineVersion, AVSigLastUpdateTime, IsCompliant, IsApplicable
-| join kind=inner avmodetable on DeviceId
+| join avmodetable on DeviceId
 | project-away DeviceId
