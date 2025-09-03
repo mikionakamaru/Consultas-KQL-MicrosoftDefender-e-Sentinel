@@ -1,0 +1,7 @@
+// Microsoft Defender XDR – Tabela DeviceNetworkEvents no esquema de Advanced Hunting
+// https://learn.microsoft.com/pt-br/defender-xdr/advanced-hunting-devicenetworkevents-table
+// Consulta para identificar eventos de rede nos últimos 30 dias onde o processo iniciador tem descrição contendo "Metasploit"
+
+DeviceNetworkEvents
+| where ingestion_time() > ago(30d) // Eventos ingeridos nos últimos 30 dias
+| where InitiatingProcessVersionInfoFileDescription contains "Metasploit" // Filtra processos com descrição que contenha "Metasploit"
