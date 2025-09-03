@@ -1,0 +1,12 @@
+// Microsoft Defender XDR – Tabela DeviceNetworkEvents no esquema Advanced Hunting
+// https://learn.microsoft.com/pt-br/defender-xdr/advanced-hunting-devicenetworkevents-table
+// Consulta para identificar conexões de rede nos últimos 30 dias usando a porta remota 4444,
+// filtrando conexões públicas e excluindo processos comuns típicos do sistema ou navegador.
+
+DeviceNetworkEvents
+| where Timestamp > ago(30d)                // Eventos dos últimos 30 dias
+| where RemotePort == 4444                   // Filtra pela porta remota 4444 (porta comumente usada por backdoors/RATs)
+| where RemoteIPType == "Public"             // Considera apenas IPs públicos
+| where InitiatingProcessFileName !in ("svchost.exe", "chrome.exe", "firefox.exe", "msedge.exe") // Exclui processos comuns e legítimos
+| project Timestamp, DeviceName, RemoteIP, RemotePort, InitiatingProcessFileName, InitiatingProcessCommandLine, InitiatingProcessAccountName
+| order by Timestamp desc                     // Ordena do mais recente para o mais antigo
