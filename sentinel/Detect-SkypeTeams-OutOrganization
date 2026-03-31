@@ -1,0 +1,17 @@
+OfficeActivity
+| where RecordType contains "MicrosoftTeams"
+| extend Extra = parse_json(ExtraProperties)
+| mv-expand Extra
+| extend Key = tostring(Extra.Key), Value = tostring(Extra.Value)
+| summarize 
+    ClientName = any(iif(Key == "ClientName", Value, "")),
+    ClientVersion = any(iif(Key == "ClientVersion", Value, "")),
+    OsName = any(iif(Key == "OsName", Value, "")),
+    OsVersion = any(iif(Key == "OsVersion", Value, "")),
+    Country = any(iif(Key == "Country", Value, "")),
+    TimeZone = any(iif(Key == "TimeZone", Value, "")),
+    Members = any(Members)
+    by TimeGenerated, UserId, ClientIP, Operation, ChatThreadId
+| where ClientName == "skypeteams"
+  and Country == "cn"
+  and TimeZone == "Asia/Shanghai"
