@@ -1,0 +1,11 @@
+// Nome: LA - Consumo Total por Tabela
+// Categoria: Log Analytics
+// Descrição: Exibe o volume total de dados faturáveis ingeridos por tabela (DataType) nos últimos 90 dias.
+// Objetivo: Identificar as tabelas que mais consomem armazenamento e contribuem para os custos de ingestão do Workspace.
+Usage
+| where TimeGenerated > ago(90d)
+| where IsBillable == true
+| summarize Usage = sum(Quantity) by DataType
+| extend UsageGB = Usage / 1000.
+| sort by Usage desc
+| project Table = DataType, ["Usage (MB)"] = Usage, ["Usage (GB)"] = UsageGB
