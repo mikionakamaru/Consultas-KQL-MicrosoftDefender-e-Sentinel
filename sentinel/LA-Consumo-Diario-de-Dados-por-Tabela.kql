@@ -1,0 +1,8 @@
+// Nome: LA - Consumo Diário de Dados por Tabela
+// Descrição: Exibe o volume diário de dados faturáveis ingeridos no Log Analytics Workspace nos últimos 90 dias, agrupado por tabela (DataType).
+// Objetivo: Análise de consumo, custos e identificação das principais fontes de ingestão de dados.
+Usage
+| where TimeGenerated > ago(90d)
+| where IsBillable == true
+| summarize IngestedGB = sum(Quantity) / 1000. by bin(TimeGenerated, 1d), DataType
+| render columnchart
