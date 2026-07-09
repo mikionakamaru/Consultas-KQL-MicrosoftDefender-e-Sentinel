@@ -1,0 +1,12 @@
+OfficeActivity
+| where RecordType contains "MicrosoftTeams"
+| where ChatThreadId == "<COLE_AQUI_O_THREAD_ID>"
+| project
+    TimeGenerated,
+    UserId,
+    ClientIP,
+    Operation,
+    ChatThreadId,
+    Members,
+    ExtraProperties
+| order by TimeGenerated asc
