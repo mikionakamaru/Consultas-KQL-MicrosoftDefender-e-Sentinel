@@ -1,0 +1,12 @@
+DeviceTvmSecureConfigurationAssessment
+| where Timestamp > ago(30d)
+| summarize arg_max(Timestamp, IsCompliant, IsApplicable, DeviceName) by DeviceId, ConfigurationId
+| where IsApplicable == 1 and IsCompliant == 0
+| join kind=inner (DeviceTvmSecureConfigurationAssessmentKB) on ConfigurationId
+| summarize ['Máquinas afetadas'] = dcount(DeviceId),
+            ['Exemplos'] = make_set(DeviceName, 5)
+    by ['Controle de segurança'] = ConfigurationName,
+       ['Categoria'] = ConfigurationCategory,
+       ['Por que importa'] = RiskDescription,
+       ['Impacto (1 a 10)'] = ConfigurationImpact
+| sort by ['Impacto (1 a 10)'] desc, ['Máquinas afetadas'] desc
