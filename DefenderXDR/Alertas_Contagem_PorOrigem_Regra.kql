@@ -1,0 +1,16 @@
+// Referências:
+// Tabela SecurityAlert (Microsoft Sentinel / Log Analytics)
+// https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/securityalert
+// Quantidade de alertas por origem e por nome de alerta (regra).
+// ProductName mostra de onde o alerta veio: "Azure Sentinel" é regra analítica do próprio Sentinel;
+// os demais (Microsoft Defender Advanced Threat Protection, Microsoft Defender for Cloud, Office 365 etc.)
+// chegaram pelos conectores da Microsoft.
+// Mesma deduplicação por SystemAlertId da consulta de contagem por mês.
+
+let inicio = datetime(2026-01-01); // Ajuste o início do período
+let fim = now();                   // Ajuste o fim do período
+SecurityAlert
+| where TimeGenerated between (inicio .. fim)
+| summarize arg_min(TimeGenerated, *) by SystemAlertId
+| summarize Total = count() by ProductName, AlertName
+| order by Total desc

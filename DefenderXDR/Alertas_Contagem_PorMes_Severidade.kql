@@ -1,0 +1,22 @@
+// Referências:
+// Tabela SecurityAlert (Microsoft Sentinel / Log Analytics)
+// https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/securityalert
+// Quantidade de alertas abertos por mês, separada por severidade.
+// A SecurityAlert grava uma linha nova a cada atualização do alerta. Sem deduplicar, o total sai inflado,
+// por isso o arg_min por SystemAlertId, que fica só com o registro de criação de cada alerta.
+// Roda no Logs do workspace do Sentinel (ou no Advanced Hunting, se o Sentinel estiver no portal unificado).
+// O alcance depende da retenção da tabela: meses fora da retenção vêm zerados ou faltando.
+
+let inicio = datetime(2026-01-01); // Ajuste o início do período
+let fim = now();                   // Ajuste o fim do período
+SecurityAlert
+| where TimeGenerated between (inicio .. fim)
+| summarize arg_min(TimeGenerated, *) by SystemAlertId
+| extend Mes = format_datetime(TimeGenerated, "yyyy-MM")
+| summarize Total = count(),
+            High = countif(AlertSeverity == "High"),
+            Medium = countif(AlertSeverity == "Medium"),
+            Low = countif(AlertSeverity == "Low"),
+            Informational = countif(AlertSeverity == "Informational")
+            by Mes
+| order by Mes asc
